@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>canvas数据可视化折线图</title>
+</head>
+<body>
+   <canvas id="cas" width="600" height="300"></canvas>
+</body>
+<script type="text/javascript">
+   var cas=document.getElementById("cas");
+var context=cas.getContext('2d');
+
+var points=[
+    {x:2,y:97},
+    {x:18,y:27},
+    {x:21,y:62},
+    {x:28,y:44},
+    {x:44,y:83},
+    {x:61,y:88},
+    {x:72,y:45},
+    {x:78,y:72},
+    {x:84,y:53},
+    {x:90,y:42}
+];
+//定义变量
+var leftOffset=20,
+        rightOffset=20,
+        topOffset=20,
+        bottomOffset=20;
+
+//箭头大小
+var arrowHeight=20,
+        arrowWidth=10;
+
+//坐标轴原点
+var x=leftOffset;
+var y=cas.height-bottomOffset;
+
+//绘制坐标轴
+context.beginPath();
+//绘制x轴
+context.moveTo(x,y);
+context.lineTo(cas.width-rightOffset,y);
+//绘制y轴
+context.moveTo(x,y);
+context.lineTo(x,topOffset);
+context.stroke();
+
+//绘制箭头
+context.beginPath();
+//绘制x轴箭头
+context.moveTo(cas.width-rightOffset,y);
+context.lineTo(cas.width-rightOffset-arrowHeight,y-arrowWidth/2);
+context.lineTo(cas.width-rightOffset-arrowHeight/2,y);
+context.lineTo(cas.width-rightOffset-arrowHeight,y+arrowWidth/2);
+context.closePath();
+
+//绘制y轴箭头
+context.moveTo(x,topOffset);
+context.lineTo(x-arrowWidth/2,topOffset+arrowHeight);
+context.lineTo(x,topOffset+arrowHeight/2);
+context.lineTo(x+arrowWidth/2,topOffset+arrowHeight);
+context.closePath();
+context.fill();
+
+//绘制点
+context.beginPath();
+//范围
+var rangeWidth=cas.width-leftOffset-rightOffset-arrowHeight;
+var rangeHeight=cas.height-topOffset-bottomOffset-arrowHeight;
+
+var maxX=Math.max.apply(null,points.map(function(v){
+            return v.x;
+        }
+));
+var maxY=Math.max.apply(null,points.map(function(v){
+            return v.y;
+        }
+));
+//比例
+var rateX=rangeWidth/maxX;
+var rateY=rangeHeight/maxY;
+
+for(var i=0;i<points.length;i++){
+    var pointx=x+points[i].x*rateX;
+    var pointY=y-points[i].y*rateY;
+
+    context.moveTo(pointx-4,pointY-4);
+    context.lineTo(pointx+4,pointY-4);
+    context.lineTo(pointx+4,pointY+4);
+    context.lineTo(pointx-4,pointY+4);
+    context.closePath();
+}
+context.fillStyle="red";
+context.fill();
+
+//绘制折线
+context.beginPath();
+context.moveTo(x+points[0].x*rateX,pointY=y-points[0].y*rateY)
+for(var i=1;i<points.length;i++){
+    var pointx=x+points[i].x*rateX;
+    var pointY=y-points[i].y*rateY;
+    context.lineTo(pointx,pointY);
+}
+context.strokeStyle="red";
+context.stroke();
+//绘制坐标
+for(var i=0;i<points.length;i++){
+    var pointX = x + points[ i ].x * rateX;
+    var pointY = y - points[ i ].y * rateY;
+    var text="("+points[i].x+","+points[i].y+")";
+    context.fillText(text,pointX,pointY);
+}
+</script>
+</html>
