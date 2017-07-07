@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="utf-8">
+  <title>mycanvas</title>
+</head>
+<body>
+    <canvas id="mycanvas" style="border: 1px solid #ccc"></canvas>
+    <script type="text/javascript" src="digit.js"></script>
+    <script type="text/javascript">
+      var radius=8;
+      var endTime=new Date(2017,5,1,0,0,0);
+      var mycanvas=document.getElementById('mycanvas');
+      var showtime={};
+      var colors=["#33B5E5","#0099CC","#AA66CC","#9933CC","#99CC00","#669900","#FFBB33","#FF8800","#FF4444","#CC0000"];
+      var balls=[];
+      
+      mycanvas.width=1024;
+      mycanvas.height=500;
+      var myctx=mycanvas.getContext('2d');
+      function drawDigit(x,y,num,ctx){
+        ctx.fillStyle="rgb(0,103,153)";
+        for(var i=0;i<digit[num].length;i++){
+          for(var j=0;j<digit[num][i].length;j++){
+            if(digit[num][i][j]==1){
+              ctx.beginPath();
+              ctx.arc(x+(radius+1)*2*j+(radius+1),y+(radius+1)*2*i+(radius+1),radius,0,2*Math.PI);
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+        }
+      }
+      function getCurentTime(){
+        var cur=new Date();
+        var time=cur.getTime();
+        time=Math.round(time/1000);
+        return time;
+      }
+      var formatDigit=function(num,timeName,timeArray){
+        timeArray[timeName]=[];
+        timeArray[timeName].push(parseInt(num/10));
+        timeArray[timeName].push(num%10);
+        if(timeName!="seconds"){
+          timeArray[timeName].push(10);
+        }
+      }
+      var render=function (ctx){
+        var flag=false;//标记冒号出现位置
+        var oldx=0;
+        for (var i in showtime) {
+          for (var j = 0; j < showtime[i].length; j++) {
+            if(flag){
+              flag=false;
+                var x=(radius+1)*2*5;
+                oldx=oldx+x;
+                drawDigit(oldx-(radius+1)*2*8,0,showtime[i][j],ctx);
+            }else{
+              var x=(radius+1)*2*8;
+              oldx=oldx+x;
+              drawDigit(oldx-(radius+1)*2*8,0,showtime[i][j],ctx);
+            }
+          }
+          flag=true;
+        }
+      }
+      var fTime=new Date();
+      var fhours=fTime.getHours();
+      var fminutes=fTime.getMinutes();
+      var fseconds=fTime.getSeconds();
+      var changeTime={};
+      formatDigit(fhours,"hours",changeTime);
+      formatDigit(fminutes,"minutes",changeTime);
+      formatDigit(fseconds,"seconds",changeTime);
+      console.log(changeTime);
+      var updateTime=function(myctx){
+        setInterval(function(){
+          var nowTime=new Date();
+          var hours=nowTime.getHours();
+          var minutes=nowTime.getMinutes();
+          var seconds=nowTime.getSeconds();
+          formatDigit(hours,"hours",showtime);
+          formatDigit(minutes,"minutes",showtime);
+          formatDigit(seconds,"seconds",showtime);
+          myctx.clearRect(0,0,1024,500);
+          render(myctx);
+          var oldx=0;
+          var flag=false;
+          for(var i in showtime){
+            for (var j = 0; j < showtime[i].length; j++) {
+                if(flag){
+                  flag=false;
+                  var x=(radius+1)*2*5;
+                  oldx=oldx+x;
+                }else{
+                  var x=(radius+1)*2*8;
+                  oldx=oldx+x;
+                }
+                if(showtime[i][j]!=changeTime[i][j]){
+                  console.log(oldx);
+                  addballs(oldx-(radius+1)*2*7,0,showtime[i][j]);
+                  changeTime[i][j]=showtime[i][j];
+                }
+                flag=true;
+                
+              }
+              
+            }
+        },50);
+      }
+      var addballs=function(x,y,num){
+        for(var i=0;i<digit[num].length;i++){
+          for(var j=0;j<digit[num][i].length;j++){
+            if(digit[num][i][j]==1){
+              var b={
+                x:x+j*2*(radius+1)+(radius+1),
+                y:y+i+2*(radius+1)+(radius+1),
+                g:9.8,
+                vx:Math.pow(-1,Math.ceil(Math.random()*1000))*4,
+                vy:-5,
+                color:colors[Math.floor(Math.random()*colors.length)]
+              }
+              balls.push(b);
+            }
+          }
+        }
+      }
+      updateTime(myctx);
+    </script>
+</body>
+</html>
